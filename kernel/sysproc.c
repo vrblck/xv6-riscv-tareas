@@ -1,3 +1,4 @@
+
 #include "types.h"
 #include "riscv.h"
 #include "defs.h"
@@ -6,6 +7,23 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "vm.h"
+
+uint64
+sys_getancestor(void)
+{
+  int n;
+  argint(0, &n);
+  if(n < 0)
+    return -1;
+  struct proc *p = myproc();
+  while(n > 0 && p) {
+    p = p->parent;
+    n--;
+  }
+  if(p)
+    return p->pid;
+  return -1;
+}
 
 uint64
 sys_exit(void)
@@ -20,6 +38,12 @@ uint64
 sys_getpid(void)
 {
   return myproc()->pid;
+}
+
+uint64
+sys_getppid(void)
+{
+  return myproc()->parent ? myproc()->parent->pid : 0;
 }
 
 uint64
